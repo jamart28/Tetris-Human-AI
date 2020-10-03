@@ -20,7 +20,7 @@ class BigBrain:
             continuous_hole = ((0, i), 0)
             if (0, 0, 0) in row:
                 for j, cell in enumerate(row):
-                    if cell != (0, 0, 0):
+                    if cell == (0, 0, 0):
                         continuous_hole[1] += 1
                     else:
                         if continuous_hole[1] > 0 and continuous_hole < smallest_hole[1]:
