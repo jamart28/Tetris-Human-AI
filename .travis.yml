@@ -1,0 +1,21 @@
+language: python
+python:
+    - "3.8"
+
+cache:
+    pip: true
+
+install:
+    - pip install poetry
+    - poetry shell & poetry install
+
+jobs:
+    include:
+        - stage: test
+          script:
+              - echo "python version $(python --version) running"
+              - echo "pip version $(pip --version) running"
+              - make check coverage
+
+after_success:
+  - codecov -t CODE_COV_TOKEN_HERE
