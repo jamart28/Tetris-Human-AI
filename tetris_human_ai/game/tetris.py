@@ -1,6 +1,8 @@
 import pygame
 import random
 
+from tetris_human_ai.AI.AI import BigBrain
+
 """
 10 x 20 square grid
 shapes: S, Z, I, O, J, L, T
@@ -282,6 +284,10 @@ def main():
     clock = pygame.time.Clock()
     fall_time = 0
 
+    brain = BigBrain()
+    moves = []
+    new_piece = True
+
     while run:
         fall_speed = 0.27
 
@@ -296,6 +302,12 @@ def main():
             if not (valid_space(current_piece, grid)) and current_piece.y > 0:
                 current_piece.y -= 1
                 change_piece = True
+
+        if new_piece and current_piece.y > 5:
+            moves = brain.big_thonk((current_piece, next_piece, grid))
+            for move in moves:
+                pygame.event.post(move)
+            new_piece = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -347,6 +359,7 @@ def main():
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
+            new_piece = True
 
             # call four times to check for multiple clear rows
             clear_rows(grid, locked_positions)
