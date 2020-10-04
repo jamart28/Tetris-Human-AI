@@ -288,7 +288,7 @@ def main():
                 current_piece.y -= 1
                 change_piece = True
 
-        if new_piece and current_piece.y > 5:
+        if new_piece and current_piece.y > 1:
             moves = brain.big_thonk((current_piece, next_piece, grid))
             for move in moves:
                 pygame.event.post(move)

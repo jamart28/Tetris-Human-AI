@@ -77,7 +77,7 @@ class BigBrain:
                     can_fit = False
             if can_fit:
                 largest_size = max(size_to_rotation.keys())
-                rotation_goal = first(size_to_rotation[continuous_hole[largest_size]])
+                rotation_goal = first(size_to_rotation[largest_size])
                 while simulated_shape.rotation != rotation_goal:
                     simulated_shape.rotation = simulated_shape.rotation + 1 % 4
                     actions_to_take.append(_rotate())  # Add Rotation Action
