@@ -1,3 +1,4 @@
+from copy import copy
 from typing import List, Tuple
 
 from attr import attrs, attrib
@@ -45,13 +46,14 @@ class BigBrain:
 
         size_to_rotation = self._orientation_to_size(current_piece)
         actions_to_take: List[pygame.event] = []
-        simulated_rotation = current_piece.rotation
+        simulated_shape = copy(current_piece)
         if continuous_hole[1] in size_to_rotation:
-            rotation_goal, shape_goal = first(size_to_rotation[continuous_hole[1]])
-            simulated_x = min([pos_x for pos_x, _ in convert_shape_format(shape_goal)])
-            while simulated_rotation != rotation_goal:
-                simulated_rotation = simulated_rotation + 1 % 4
+            rotation_goal = first(size_to_rotation[continuous_hole[1]])
+            while simulated_shape.rotation != rotation_goal:
+                simulated_shape.rotation = simulated_shape.rotation + 1 % 4
                 actions_to_take.append(_rotate())  # Add Rotation Action
+
+            simulated_x = min([pos_x for pos_x, _ in convert_shape_format(simulated_shape)])
 
             while simulated_x != continuous_hole[0][0]:
                 if simulated_x < continuous_hole[0][0]:
@@ -75,14 +77,15 @@ class BigBrain:
                     can_fit = False
             if can_fit:
                 largest_size = max(size_to_rotation.keys())
-                rotation_goal, shape_goal = first(size_to_rotation[largest_size])
-                simulated_x = min([pos_x for pos_x, _ in convert_shape_format(shape_goal)])
-                while simulated_rotation != rotation_goal:
-                    simulated_rotation = simulated_rotation + 1 % 4
+                rotation_goal = first(size_to_rotation[continuous_hole[largest_size]])
+                while simulated_shape.rotation != rotation_goal:
+                    simulated_shape.rotation = simulated_shape.rotation + 1 % 4
                     actions_to_take.append(_rotate())  # Add Rotation Action
 
-                while simulated_x != continuous_hole[0][0] + 2:
-                    if simulated_x < continuous_hole[0][0] + 2:
+                simulated_x = min([pos_x for pos_x, _ in convert_shape_format(simulated_shape)])
+
+                while simulated_x != continuous_hole[0][0]:
+                    if simulated_x < continuous_hole[0][0]:
                         simulated_x = simulated_x + 1
                         actions_to_take.append(_move_right())  # Add Move Right Event
                     else:
@@ -96,8 +99,8 @@ class BigBrain:
             else:
                 raise RuntimeError("No Solution For Current State (Fix it so it finds a solution dumbass)")
 
-    def _orientation_to_size(self, piece: "Piece") -> ImmutableSetMultiDict[int, Tuple[int, ImmutableSet[str]]]:
-        rotation_to_size: List[Tuple[int, Tuple[int, ImmutableSet[str]]]] = []
+    def _orientation_to_size(self, piece: "Piece") -> ImmutableSetMultiDict[int, int]:
+        rotation_to_size: List[Tuple[int, int]] = []
         for num, lines in enumerate(piece.shape):
             last_line = None
             for line in lines:
@@ -108,7 +111,7 @@ class BigBrain:
                 for char in line:
                     if char == "0":
                         count = count + 1
-                rotation_to_size.append((count, (num, immutableset(lines))))
+                rotation_to_size.append((count, num))
             else:
                 raise RuntimeError("Failed to find last line of shape.")
 
