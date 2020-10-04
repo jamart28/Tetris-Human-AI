@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from attr import attrs, attrib
 import pygame
-from immutablecollections import ImmutableSetMultiDict, immutablesetmultidict
+from immutablecollections import ImmutableSetMultiDict, immutablesetmultidict, immutableset, ImmutableSet
 from more_itertools import first
 
 from tetris_human_ai import convert_shape_format
@@ -96,8 +96,8 @@ class BigBrain:
             else:
                 raise RuntimeError("No Solution For Current State (Fix it so it finds a solution dumbass)")
 
-    def _orientation_to_size(self, piece: "Piece") -> ImmutableSetMultiDict[int, Tuple[int, List[str]]]:
-        rotation_to_size: List[Tuple[int, Tuple[int, List[str]]]] = []
+    def _orientation_to_size(self, piece: "Piece") -> ImmutableSetMultiDict[int, Tuple[int, ImmutableSet[str]]]:
+        rotation_to_size: List[Tuple[int, Tuple[int, ImmutableSet[str]]]] = []
         for num, lines in enumerate(piece.shape):
             last_line = None
             for line in lines:
@@ -108,7 +108,7 @@ class BigBrain:
                 for char in line:
                     if char == "0":
                         count = count + 1
-                rotation_to_size.append((count, (num, lines)))
+                rotation_to_size.append((count, (num, immutableset(lines))))
             else:
                 raise RuntimeError("Failed to find last line of shape.")
 
