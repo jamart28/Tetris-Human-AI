@@ -5,6 +5,7 @@ import pygame
 from immutablecollections import ImmutableSetMultiDict, immutablesetmultidict
 from more_itertools import first
 
+from tetris_human_ai import convert_shape_format
 
 GameState = "Tuple[Piece, Piece, List[List[Tuple[int, int, int]]]]"
 
@@ -49,15 +50,16 @@ class BigBrain:
         size_to_rotation = self._orientation_to_size(current_piece)
         actions_to_take: List[pygame.event] = []
         simulated_rotation = current_piece.rotation
-        simulated_x = current_piece.x
+        simulated_x = current_piece.x - 2
         if continuous_hole[1] in size_to_rotation:
-            rotation_goal = first(size_to_rotation[continuous_hole[1]])
+            rotation_goal, shape_goal = first(size_to_rotation[continuous_hole[1]])
+            simulated_x = min([pos_x for pos_x, _ in convert_shape_format(shape_goal)])
             while simulated_rotation != rotation_goal:
                 simulated_rotation = simulated_rotation + 1 % 4
                 actions_to_take.append(_rotate())  # Add Rotation Action
 
-            while simulated_x != continuous_hole[0][0] + 2:
-                if simulated_x < continuous_hole[0][0] + 2:
+            while simulated_x != continuous_hole[0][0]:
+                if simulated_x < continuous_hole[0][0]:
                     simulated_x = simulated_x + 1
                     actions_to_take.append(_move_right())  # Add Move Right Event
                 else:
@@ -88,11 +90,9 @@ class BigBrain:
             # Let the game do that for us :)
 
             return actions_to_take
-            # We may need to find the next smallest hole and try again.
-            raise RuntimeError("No Solution For Current State")
 
-    def _orientation_to_size(self, piece: "Piece") -> ImmutableSetMultiDict[int, int]:
-        rotation_to_size: List[Tuple[int, int]] = []
+    def _orientation_to_size(self, piece: "Piece") -> ImmutableSetMultiDict[int, Tuple[int, List[str]]]:
+        rotation_to_size: List[Tuple[int, Tuple[int, List[str]]]] = []
         for num, lines in enumerate(piece.shape):
             last_line = None
             for line in lines:
@@ -103,7 +103,7 @@ class BigBrain:
                 for char in line:
                     if char == "0":
                         count = count + 1
-                rotation_to_size.append((count, num))
+                rotation_to_size.append((count, (num, lines)))
             else:
                 raise RuntimeError("Failed to find last line of shape.")
 
