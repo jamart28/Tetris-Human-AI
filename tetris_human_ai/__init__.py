@@ -9,7 +9,7 @@ def convert_shape_format(shape):
     for i, line in enumerate(format):
         row = list(line)
         for j, column in enumerate(row):
-            if column == '0':
+            if column == "0":
                 positions.append((shape.x + j, shape.y + i))
 
     for i, pos in enumerate(positions):

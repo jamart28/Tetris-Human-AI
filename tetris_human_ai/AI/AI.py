@@ -1,12 +1,19 @@
 from copy import copy
 from typing import List, Tuple
 
-from attr import attrs, attrib
-import pygame
-from immutablecollections import ImmutableSetMultiDict, immutablesetmultidict, immutableset, ImmutableSet
-from more_itertools import first
+from attr import attrib, attrs
+
+from immutablecollections import (
+    ImmutableSet,
+    ImmutableSetMultiDict,
+    immutableset,
+    immutablesetmultidict,
+)
 
 from tetris_human_ai import convert_shape_format
+
+import pygame
+from more_itertools import first
 
 GameState = "Tuple[Piece, Piece, List[List[Tuple[int, int, int]]]]"
 
@@ -40,9 +47,12 @@ class BigBrain:
                     if cell == (0, 0, 0):
                         continuous_hole = (continuous_hole[0], continuous_hole[1] + 1)
                     else:
-                        if continuous_hole[1] > 0 and continuous_hole[1] < smallest_hole[1]:
+                        if (
+                            continuous_hole[1] > 0
+                            and continuous_hole[1] < smallest_hole[1]
+                        ):
                             smallest_hole = continuous_hole
-                        continuous_hole = (j+1, 0)
+                        continuous_hole = (j + 1, 0)
 
                 size_to_rotation = self._orientation_to_size(current_piece)
                 actions_to_take: List[pygame.event] = []
@@ -53,7 +63,9 @@ class BigBrain:
                         simulated_shape.rotation = simulated_shape.rotation + 1 % 4
                         actions_to_take.append(_rotate())  # Add Rotation Action
 
-                    simulated_x = min([pos_x for pos_x, _ in convert_shape_format(simulated_shape)])
+                    simulated_x = min(
+                        [pos_x for pos_x, _ in convert_shape_format(simulated_shape)]
+                    )
 
                     while simulated_x != continuous_hole[0]:
                         if simulated_x < continuous_hole[0]:
@@ -82,22 +94,30 @@ class BigBrain:
                             simulated_shape.rotation = simulated_shape.rotation + 1 % 4
                             actions_to_take.append(_rotate())  # Add Rotation Action
 
-                        simulated_x = min([pos_x for pos_x, _ in convert_shape_format(simulated_shape)])
+                        simulated_x = min(
+                            [pos_x for pos_x, _ in convert_shape_format(simulated_shape)]
+                        )
 
                         while simulated_x != continuous_hole[0]:
                             if simulated_x < continuous_hole[0]:
                                 simulated_x = simulated_x + 1
-                                actions_to_take.append(_move_right())  # Add Move Right Event
+                                actions_to_take.append(
+                                    _move_right()
+                                )  # Add Move Right Event
                             else:
                                 simulated_x = simulated_x - 1
-                                actions_to_take.append(_move_left())  # Add Move Left Event
+                                actions_to_take.append(
+                                    _move_left()
+                                )  # Add Move Left Event
 
                         # We should maybe move down but that seems like bonus points when we could
                         # Let the game do that for us :)
 
                         return actions_to_take
                     else:
-                        raise RuntimeError("No Solution For Current State (Fix it so it finds a solution dumbass)")
+                        raise RuntimeError(
+                            "No Solution For Current State (Fix it so it finds a solution dumbass)"
+                        )
 
     def _orientation_to_size(self, piece: "Piece") -> ImmutableSetMultiDict[int, int]:
         rotation_to_size: List[Tuple[int, int]] = []
