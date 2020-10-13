@@ -1,3 +1,4 @@
+This project was completed as part of the online hackathon MakeUC 2020
 
 * TODO: Add codecov token to `.travis.yml`
 
